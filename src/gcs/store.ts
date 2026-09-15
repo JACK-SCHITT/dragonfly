@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import type { WingSource } from "./pilot";
+
+export type TapePhase = "idle" | "arming" | "rec";
 import {
   DEFAULT_FOLLOW,
   DEFAULT_HOME,
@@ -72,6 +74,11 @@ export interface StationState {
   bluetoothOk: boolean;
   baud: number;
   flightStartedAt: number | null;
+  tapePhase: TapePhase;
+  tapeMs: number;
+  tapeCam: boolean;
+  tapeMic: boolean;
+  tapeNote: string;
 
   openStation: () => void;
   setConnectOpen: (v: boolean) => void;
@@ -98,6 +105,9 @@ export interface StationState {
   setLocation: (prompted: boolean, denied: boolean) => void;
   setCapabilities: (serialOk: boolean, bluetoothOk: boolean) => void;
   setFlightStartedAt: (t: number | null) => void;
+  setTape: (
+    patch: Partial<Pick<StationState, "tapePhase" | "tapeMs" | "tapeCam" | "tapeMic" | "tapeNote">>,
+  ) => void;
   pushLog: (text: string) => void;
   placeOperator: (lat: number, lng: number) => void;
 }
@@ -141,6 +151,11 @@ export const useStation = create<StationState>((set, get) => ({
   bluetoothOk: false,
   baud: 57600,
   flightStartedAt: null,
+  tapePhase: "idle",
+  tapeMs: 0,
+  tapeCam: false,
+  tapeMic: false,
+  tapeNote: "",
 
   openStation: () => set({ phase: "station" }),
   setConnectOpen: (v) => set({ connectOpen: v }),
@@ -189,6 +204,7 @@ export const useStation = create<StationState>((set, get) => ({
   setLocation: (prompted, denied) => set({ locationPrompted: prompted, locationDenied: denied }),
   setCapabilities: (serialOk, bluetoothOk) => set({ serialOk, bluetoothOk }),
   setFlightStartedAt: (t) => set({ flightStartedAt: t }),
+  setTape: (patch) => set(patch),
   pushLog: (text) => {
     const line: LogLine = { id: logSeq++, t: Date.now(), text };
     const logs = [...get().logs, line].slice(-12);

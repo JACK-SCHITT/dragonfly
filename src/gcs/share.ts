@@ -17,7 +17,7 @@ export interface Channel {
 }
 
 export const CHANNELS: Channel[] = [
-  { id: "system", name: "Phone share", hint: "Instagram, TikTok, Facebook, Stories — whatever is on this phone" },
+  { id: "system", name: "Phone share", hint: "Instagram, TikTok, Facebook — attaches the tape when you have one" },
   { id: "x", name: "X", hint: "Opens a compose window with the caption" },
   { id: "threads", name: "Threads", hint: "Opens Threads compose" },
   { id: "whatsapp", name: "WhatsApp", hint: "Send the recap as a message" },

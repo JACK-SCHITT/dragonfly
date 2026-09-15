@@ -139,9 +139,17 @@ export function MapView() {
       ro.observe(el);
 
       let lastTrail = 0;
+      let wasAir = false;
       unsub = useStation.subscribe((st) => {
         const o = st.operator;
         const tel = st.telemetry;
+        if (tel.inAir && !wasAir) {
+          wasAir = true;
+          applyKind.current("sat");
+          setKind("sat");
+          saveMapKind("sat");
+        }
+        if (!tel.inAir) wasAir = false;
         you.setLatLng([o.lat, o.lng]);
         craft.setLatLng([tel.lat, tel.lng]);
         craft.setIcon(craftIcon(tel.heading));

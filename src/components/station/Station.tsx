@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import {
   BatteryMedium,
+  Circle,
   Crosshair,
   Headphones,
   Home,
@@ -17,7 +18,9 @@ import { PilotSheet } from "@/components/station/PilotSheet";
 import { SettingsSheet } from "@/components/station/SettingsSheet";
 import { ShareSheet } from "@/components/station/ShareSheet";
 import { Stick } from "@/components/station/Stick";
+import { TapeHud } from "@/components/station/TapeHud";
 import { commandLand, commandRtl, commandTakeoff, startRuntime } from "@/gcs/runtime";
+import { toggleTape } from "@/gcs/tape";
 import { startWingLoop } from "@/gcs/wing";
 import { distanceM, pad } from "@/gcs/geo";
 import { useStation } from "@/gcs/store";
@@ -50,12 +53,15 @@ export function Station() {
   const logs = useStation((s) => s.logs);
   const seatOn = useStation((s) => s.seatOn);
   const pilotSay = useStation((s) => s.pilotSay);
+  const tapePhase = useStation((s) => s.tapePhase);
+  const tapeMs = useStation((s) => s.tapeMs);
   const inAir = tel.inAir;
   const dist = distanceM(operator, tel);
 
   return (
     <main className="relative h-dvh overflow-hidden bg-bg text-fg">
       <MapView />
+      <TapeHud />
 
       <header className="pointer-events-none absolute inset-x-0 top-0 z-[600] flex items-start justify-between gap-3 px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="pointer-events-auto rounded-lg bg-surface/90 px-3 py-2 shadow-[var(--shadow-border)]">
@@ -81,6 +87,26 @@ export function Station() {
             warn={tel.batteryPct <= 20 && tel.batteryPct > 10}
             label={`${Math.round(tel.batteryPct)}%`}
           />
+          <button
+            type="button"
+            onClick={() => void toggleTape()}
+            className={cn(
+              "flex h-8 items-center gap-1.5 rounded-sm px-2.5 font-mono text-[10px] uppercase tracking-[0.14em]",
+              tapePhase === "rec" || tapePhase === "arming" ? "bg-danger text-fg" : "text-muted",
+            )}
+            aria-label={tapePhase === "rec" ? "Stop tape" : "Record tape"}
+          >
+            <Circle className="size-2.5 fill-current" />
+            {tapePhase === "rec"
+              ? `${Math.floor(tapeMs / 60000)
+                  .toString()
+                  .padStart(2, "0")}:${Math.floor((tapeMs / 1000) % 60)
+                  .toString()
+                  .padStart(2, "0")}`
+              : tapePhase === "arming"
+                ? "ARM"
+                : "REC"}
+          </button>
         </div>
       </header>
 

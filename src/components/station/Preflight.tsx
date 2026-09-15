@@ -44,8 +44,8 @@ export function Preflight() {
             <span>MAVLink over USB serial or Bluetooth. Preview aircraft until a radio is live.</span>
           </li>
           <li className="grid grid-cols-[4.5rem_1fr] gap-4">
-            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-subtle">WING</span>
-            <span>Grok in the outer loop. Procedures plus a talking copilot that flies follow, orbit, and home.</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-subtle">Tape</span>
+            <span>In flight the map goes satellite. REC writes camera, mic, and the HUD to a clip you can post.</span>
           </li>
         </ul>
 

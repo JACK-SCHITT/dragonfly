@@ -18,6 +18,7 @@ import {
   type FlightSnapshot,
   type SharePost,
 } from "@/gcs/share";
+import { lastTape } from "@/gcs/tape";
 import { useStation } from "@/gcs/store";
 import { cn } from "@/lib/cn";
 
@@ -89,14 +90,25 @@ export function ShareSheet() {
         setNoticeOk(true);
       } else if (id === "system") {
         let file: File | undefined;
-        try {
-          const blob = await renderShareCard(snap);
-          file = new File([blob], "dragonfly.png", { type: "image/png" });
-        } catch {
-          file = undefined;
+        const tape = lastTape();
+        if (tape) {
+          file = new File([tape.blob], tape.name, { type: tape.blob.type || "video/webm" });
+        } else {
+          try {
+            const blob = await renderShareCard(snap);
+            file = new File([blob], "dragonfly.png", { type: "image/png" });
+          } catch {
+            file = undefined;
+          }
         }
         const shared = await shareSystem(caption, file);
-        setNotice(shared ? "Share sheet opened" : "Copied — this browser has no system share");
+        setNotice(
+          shared
+            ? tape
+              ? "Share sheet opened with the tape"
+              : "Share sheet opened"
+            : "Copied — this browser has no system share",
+        );
         setNoticeOk(true);
       } else {
         const href = channelHref(id, caption);
@@ -130,7 +142,7 @@ export function ShareSheet() {
                 Post
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-muted">
-                Caption from this flight. Phone share hits Instagram, TikTok, Facebook. X and Threads open compose.
+                Caption from this flight. If a tape is in the bay, phone share attaches the video with audio.
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
@@ -141,6 +153,32 @@ export function ShareSheet() {
           </div>
 
           <div className="mt-4 flex-1 overflow-y-auto px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            {lastTape() ? (
+              <div className="mb-4 overflow-hidden rounded-lg bg-raised">
+                <video
+                  src={lastTape()!.url}
+                  controls
+                  playsInline
+                  className="mx-auto max-h-56 w-full bg-bg object-contain"
+                />
+                <div className="flex items-center justify-between gap-3 px-3 py-2">
+                  <p className="text-xs text-muted">
+                    Tape ready · {lastTape()!.hasCam ? "camera" : "instruments"}
+                    {lastTape()!.hasMic ? " · mic" : " · silent"}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      const t = lastTape();
+                      if (t) downloadBlob(t.blob, t.name);
+                    }}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            ) : null}
             <div className="flex rounded-lg bg-raised p-1">
               {KINDS.map((k) => (
                 <button
