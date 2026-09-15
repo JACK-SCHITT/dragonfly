@@ -57,6 +57,7 @@ export interface StationState {
   logs: LogLine[];
   connectOpen: boolean;
   settingsOpen: boolean;
+  shareOpen: boolean;
   stickN: number;
   stickE: number;
   takingOff: boolean;
@@ -70,6 +71,7 @@ export interface StationState {
   openStation: () => void;
   setConnectOpen: (v: boolean) => void;
   setSettingsOpen: (v: boolean) => void;
+  setShareOpen: (v: boolean) => void;
   setFlightMode: (m: FlightMode) => void;
   setFollow: (patch: Partial<FollowParams>) => void;
   setStick: (n: number, e: number) => void;
@@ -117,6 +119,7 @@ export const useStation = create<StationState>((set, get) => ({
   logs: [],
   connectOpen: false,
   settingsOpen: false,
+  shareOpen: false,
   stickN: 0,
   stickE: 0,
   takingOff: false,
@@ -130,6 +133,7 @@ export const useStation = create<StationState>((set, get) => ({
   openStation: () => set({ phase: "station" }),
   setConnectOpen: (v) => set({ connectOpen: v }),
   setSettingsOpen: (v) => set({ settingsOpen: v }),
+  setShareOpen: (v) => set({ shareOpen: v }),
   setFlightMode: (m) => {
     const hoverHold =
       m === "hover"

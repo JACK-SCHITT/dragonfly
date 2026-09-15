@@ -6,12 +6,14 @@ import {
   Radio,
   Satellite,
   Settings2,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConnectSheet } from "@/components/station/ConnectSheet";
 import { MapView } from "@/components/station/MapView";
 import { Pfd } from "@/components/station/Pfd";
 import { SettingsSheet } from "@/components/station/SettingsSheet";
+import { ShareSheet } from "@/components/station/ShareSheet";
 import { Stick } from "@/components/station/Stick";
 import { commandLand, commandRtl, commandTakeoff, startRuntime } from "@/gcs/runtime";
 import { distanceM, pad } from "@/gcs/geo";
@@ -117,6 +119,14 @@ export function Station() {
               <Button
                 variant="secondary"
                 size="icon"
+                aria-label="Post"
+                onClick={() => useStation.getState().setShareOpen(true)}
+              >
+                <Share2 className="size-4" />
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
                 aria-label="Follow settings"
                 onClick={() => useStation.getState().setSettingsOpen(true)}
               >
@@ -179,6 +189,7 @@ export function Station() {
 
       <ConnectSheet />
       <SettingsSheet />
+      <ShareSheet />
     </main>
   );
 }

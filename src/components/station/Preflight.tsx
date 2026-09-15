@@ -43,6 +43,10 @@ export function Preflight() {
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-subtle">Link</span>
             <span>MAVLink over USB serial or Bluetooth. Preview aircraft until a radio is live.</span>
           </li>
+          <li className="grid grid-cols-[4.5rem_1fr] gap-4">
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-subtle">Post</span>
+            <span>Captions and stills from the flight, out to X, Instagram, TikTok, and the rest.</span>
+          </li>
         </ul>
 
         <div className="mt-auto flex flex-col gap-3 pt-12">

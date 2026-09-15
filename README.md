@@ -13,6 +13,7 @@ A phone-first ground station for **follow-me flight**.
 - Follow, orbit, hover, lead, and return-to-home.
 - **Live radio today:** MAVLink v2 over USB serial (Chrome) or Bluetooth UART (Android Chrome) for PX4 / ArduPilot / Pixhawk-class craft.
 - **Preview aircraft** so the station is usable with no radio attached.
+- **Post desk:** captions and stills from the live flight, out through the phone share sheet (Instagram, TikTok, Facebook), X, Threads, WhatsApp, Telegram.
 - Closed consumer radios (most DJI Mini/Air/Mavic, Autel EVO, Skydio S2) cannot be flown from a website. Those paths are catalogued in [DRONES.md](./DRONES.md) for the next adapters.
 
 ## Try it
@@ -21,6 +22,7 @@ A phone-first ground station for **follow-me flight**.
 2. Takeoff — the preview aircraft climbs and locks behind you.
 3. Walk with WASD / the stick, or walk the phone.
 4. Connect → USB serial or Bluetooth when a MAVLink radio is plugged in.
+5. Share icon → post a lock / airborne / recap caption, or save a still for Instagram and TikTok.
 
 ## Stack
 
