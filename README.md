@@ -26,7 +26,7 @@ A phone-first ground station for **follow-me flight**.
 
 ## Stack
 
-TanStack Start, React 19, Leaflet (Carto dark map), MAVLink v2 codec in-app, Web Serial + Web Bluetooth.
+TanStack Start, React 19, Leaflet (Esri World Imagery + Carto streets, no API key), MAVLink v2 codec in-app, Web Serial + Web Bluetooth.
 
 ## Credits
 

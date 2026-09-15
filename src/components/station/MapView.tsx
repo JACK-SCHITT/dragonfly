@@ -1,6 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStation } from "@/gcs/store";
 import { offset } from "@/gcs/geo";
+import {
+  loadMapKind,
+  SAT_ATTR,
+  SAT_URL,
+  saveMapKind,
+  STREET_ATTR,
+  STREET_URL,
+  type MapKind,
+} from "@/gcs/basemap";
 
 type LeafletMap = {
   invalidateSize: () => void;
@@ -14,6 +23,8 @@ export function MapView() {
   const mapRef = useRef<LeafletMap | null>(null);
   const followRef = useRef(true);
   const trailPts = useRef<Array<{ lat: number; lng: number }>>([]);
+  const applyKind = useRef<(k: MapKind) => void>(() => {});
+  const [kind, setKind] = useState<MapKind>(() => loadMapKind());
 
   useEffect(() => {
     const el = hostRef.current;
@@ -56,11 +67,25 @@ export function MapView() {
         zoomSnap: 0.25,
       }).setView([s0.operator.lat, s0.operator.lng], 18) as unknown as LeafletMap;
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        attribution: "&copy; OpenStreetMap &copy; CARTO",
+      const sat = L.tileLayer(SAT_URL, {
+        attribution: SAT_ATTR,
+        maxZoom: 20,
+        maxNativeZoom: 19,
+      });
+      const street = L.tileLayer(STREET_URL, {
+        attribution: STREET_ATTR,
         subdomains: "abcd",
         maxZoom: 20,
-      }).addTo(map as never);
+      });
+
+      const show = (k: MapKind) => {
+        sat.remove();
+        street.remove();
+        if (k === "sat") sat.addTo(map as never);
+        else street.addTo(map as never);
+      };
+      applyKind.current = show;
+      show(loadMapKind());
 
       const you = L.marker([s0.operator.lat, s0.operator.lng], {
         icon: youIcon,
@@ -180,25 +205,45 @@ export function MapView() {
   return (
     <div className="absolute inset-0 touch-none">
       <div ref={hostRef} className="absolute inset-0" />
-      <button
-        type="button"
-        className="absolute right-3 top-28 z-[500] hidden h-9 rounded-sm bg-surface px-3 text-xs text-muted shadow-[var(--shadow-border)] md:block"
-        onClick={() => {
-          followRef.current = true;
-          const map = mapRef.current;
-          const st = useStation.getState();
-          if (!map) return;
-          map.panTo(
-            [
-              (st.operator.lat + st.telemetry.lat) / 2,
-              (st.operator.lng + st.telemetry.lng) / 2,
-            ],
-            { animate: true },
-          );
-        }}
-      >
-        Recenter
-      </button>
+      <div className="absolute bottom-[11.5rem] left-3 z-[500] flex gap-1 md:bottom-auto md:left-auto md:right-3 md:top-28">
+        {(["sat", "street"] as const).map((k) => (
+          <button
+            key={k}
+            type="button"
+            className={
+              kind === k
+                ? "h-9 rounded-sm bg-accent px-3 text-xs font-medium text-accent-fg shadow-[var(--shadow-border)]"
+                : "h-9 rounded-sm bg-surface px-3 text-xs text-muted shadow-[var(--shadow-border)]"
+            }
+            onClick={() => {
+              setKind(k);
+              saveMapKind(k);
+              applyKind.current(k);
+            }}
+          >
+            {k === "sat" ? "Sat" : "Map"}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="h-9 rounded-sm bg-surface px-3 text-xs text-muted shadow-[var(--shadow-border)]"
+          onClick={() => {
+            followRef.current = true;
+            const map = mapRef.current;
+            const st = useStation.getState();
+            if (!map) return;
+            map.panTo(
+              [
+                (st.operator.lat + st.telemetry.lat) / 2,
+                (st.operator.lng + st.telemetry.lng) / 2,
+              ],
+              { animate: true },
+            );
+          }}
+        >
+          Recenter
+        </button>
+      </div>
     </div>
   );
 }
