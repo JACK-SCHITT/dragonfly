@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { WingSource } from "./pilot";
 import {
   DEFAULT_FOLLOW,
   DEFAULT_HOME,
@@ -58,6 +59,10 @@ export interface StationState {
   connectOpen: boolean;
   settingsOpen: boolean;
   shareOpen: boolean;
+  pilotOpen: boolean;
+  seatOn: boolean;
+  pilotSay: string;
+  pilotSource: WingSource;
   stickN: number;
   stickE: number;
   takingOff: boolean;
@@ -72,6 +77,9 @@ export interface StationState {
   setConnectOpen: (v: boolean) => void;
   setSettingsOpen: (v: boolean) => void;
   setShareOpen: (v: boolean) => void;
+  setPilotOpen: (v: boolean) => void;
+  setSeatOn: (v: boolean) => void;
+  setPilotSay: (say: string, source: WingSource) => void;
   setFlightMode: (m: FlightMode) => void;
   setFollow: (patch: Partial<FollowParams>) => void;
   setStick: (n: number, e: number) => void;
@@ -120,6 +128,10 @@ export const useStation = create<StationState>((set, get) => ({
   connectOpen: false,
   settingsOpen: false,
   shareOpen: false,
+  pilotOpen: false,
+  seatOn: false,
+  pilotSay: "",
+  pilotSource: "idle",
   stickN: 0,
   stickE: 0,
   takingOff: false,
@@ -134,6 +146,16 @@ export const useStation = create<StationState>((set, get) => ({
   setConnectOpen: (v) => set({ connectOpen: v }),
   setSettingsOpen: (v) => set({ settingsOpen: v }),
   setShareOpen: (v) => set({ shareOpen: v }),
+  setPilotOpen: (v) => set({ pilotOpen: v }),
+  setSeatOn: (v) => {
+    set({
+      seatOn: v,
+      pilotSay: v ? "WING in the seat." : "Seat empty.",
+      pilotSource: v ? "sop" : "idle",
+    });
+    get().pushLog(v ? "WING has the aircraft" : "You have the aircraft");
+  },
+  setPilotSay: (say, source) => set({ pilotSay: say, pilotSource: source }),
   setFlightMode: (m) => {
     const hoverHold =
       m === "hover"

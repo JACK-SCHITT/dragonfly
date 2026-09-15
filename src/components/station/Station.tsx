@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import {
   BatteryMedium,
   Crosshair,
+  Headphones,
   Home,
   Radio,
   Satellite,
@@ -12,10 +13,12 @@ import { Button } from "@/components/ui/button";
 import { ConnectSheet } from "@/components/station/ConnectSheet";
 import { MapView } from "@/components/station/MapView";
 import { Pfd } from "@/components/station/Pfd";
+import { PilotSheet } from "@/components/station/PilotSheet";
 import { SettingsSheet } from "@/components/station/SettingsSheet";
 import { ShareSheet } from "@/components/station/ShareSheet";
 import { Stick } from "@/components/station/Stick";
 import { commandLand, commandRtl, commandTakeoff, startRuntime } from "@/gcs/runtime";
+import { startWingLoop } from "@/gcs/wing";
 import { distanceM, pad } from "@/gcs/geo";
 import { useStation } from "@/gcs/store";
 import type { FlightMode } from "@/gcs/types";
@@ -29,7 +32,14 @@ const MODES: { id: FlightMode; label: string }[] = [
 ];
 
 export function Station() {
-  useEffect(() => startRuntime(), []);
+  useEffect(() => {
+    const stopRuntime = startRuntime();
+    const stopWing = startWingLoop();
+    return () => {
+      stopRuntime();
+      stopWing();
+    };
+  }, []);
 
   const linkKind = useStation((s) => s.linkKind);
   const linkStatus = useStation((s) => s.linkStatus);
@@ -38,6 +48,8 @@ export function Station() {
   const locked = useStation((s) => s.locked);
   const mode = useStation((s) => s.flightMode);
   const logs = useStation((s) => s.logs);
+  const seatOn = useStation((s) => s.seatOn);
+  const pilotSay = useStation((s) => s.pilotSay);
   const inAir = tel.inAir;
   const dist = distanceM(operator, tel);
 
@@ -96,7 +108,20 @@ export function Station() {
           </p>
           <p className="mt-0.5 text-xs">{tel.modeText}</p>
         </div>
-        {logs.length ? (
+        {pilotSay ? (
+          <p
+            className={cn(
+              "max-w-[16rem] rounded-md px-2.5 py-1.5 text-right text-[11px] leading-relaxed",
+              seatOn ? "bg-surface/90 text-fg" : "bg-surface/80 text-muted",
+            )}
+          >
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-subtle">
+              {seatOn ? "WING" : "CALL"}
+            </span>
+            <br />
+            {pilotSay}
+          </p>
+        ) : logs.length ? (
           <p className="max-w-[16rem] rounded-md bg-surface/80 px-2.5 py-1.5 text-right text-[11px] text-muted">
             {logs[logs.length - 1]?.text}
           </p>
@@ -108,6 +133,14 @@ export function Station() {
           <div className="flex items-end justify-between gap-3">
             <Stick />
             <div className="flex flex-col gap-2">
+              <Button
+                variant={seatOn ? "primary" : "secondary"}
+                size="icon"
+                aria-label="WING"
+                onClick={() => useStation.getState().setPilotOpen(true)}
+              >
+                <Headphones className="size-4" />
+              </Button>
               <Button
                 variant="secondary"
                 size="icon"
@@ -190,6 +223,7 @@ export function Station() {
       <ConnectSheet />
       <SettingsSheet />
       <ShareSheet />
+      <PilotSheet />
     </main>
   );
 }
